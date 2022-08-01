@@ -1,0 +1,76 @@
+substitutions:
+  devicename: climate_livingroom
+  friendly_name: $devicename
+
+esphome:
+  name: $devicename
+  platform: ESP8266
+  board: d1_mini
+
+# external_components:
+#   - source:
+#       type: local
+#       path: components
+
+wifi:
+  networks:
+    - ssid: !secret ssid1
+      password: !secret ssid1_password
+      manual_ip:
+        static_ip: !secret static_ip
+        gateway: !secret gateway
+        subnet: !secret subnet_mask
+  use_address: $devicename
+  fast_connect: True
+  power_save_mode: none
+
+mqtt:
+  broker: !secret mqtt_server
+  port: !secret mqtt_port
+  discovery: False
+
+sensor:
+  - platform: mqtt_subscribe
+    name: "Temperature"
+    device_class: temperature
+    state_class: measurement
+    unit_of_measurement: "°C"
+    id: livingroom_temperature
+    topic: living_room/temperature
+
+api:
+
+ota:
+
+web_server:
+    port: 80
+    auth:
+        username: admin
+        password: !secret web_password
+
+# Enable logging
+logger:
+  level: DEBUG
+
+remote_transmitter:
+  pin: D7
+  carrier_duty_percent: 50%
+
+remote_receiver:
+  id: climate_receiver
+  pin:
+    number: D6
+    inverted: true
+    mode:
+      input: true
+      pullup: true
+  # high 55% tolerance is recommended for some remote control units
+  tolerance: 55%
+  dump: lg
+
+climate:
+  - platform: whirlpool       # adjust to match your AC unit!
+    name: "Living Room AC"
+    receiver_id: climate_receiver
+    sensor: livingroom_temperature
+
