@@ -7,10 +7,10 @@ esphome:
   platform: ESP8266
   board: d1_mini
 
-# external_components:
-#   - source:
-#       type: local
-#       path: components
+external_components:
+  - source:
+      type: local
+      path: components
 
 wifi:
   networks:
@@ -24,19 +24,11 @@ wifi:
   fast_connect: True
   power_save_mode: none
 
-mqtt:
-  broker: !secret mqtt_server
-  port: !secret mqtt_port
-  discovery: False
-
 sensor:
-  - platform: mqtt_subscribe
-    name: "Temperature"
-    device_class: temperature
-    state_class: measurement
-    unit_of_measurement: "°C"
+  - platform: homeassistant
     id: livingroom_temperature
-    topic: living_room/temperature
+    entity_id: sensor.wi_fi_universal_remote_temperature
+    internal: true
 
 api:
 
@@ -50,7 +42,7 @@ web_server:
 
 # Enable logging
 logger:
-  level: DEBUG
+  level: INFO
 
 remote_transmitter:
   pin: D7
@@ -66,11 +58,26 @@ remote_receiver:
       pullup: true
   # high 55% tolerance is recommended for some remote control units
   tolerance: 55%
-  dump: lg
+  # dump: lg
 
 climate:
   - platform: whirlpool       # adjust to match your AC unit!
+    id: climate_livingroom
     name: "Living Room AC"
     receiver_id: climate_receiver
     sensor: livingroom_temperature
 
+switch:
+  - platform: template
+    name: "Toggle Transmitter"
+    lambda: |-
+      if (id(climate_livingroom)->transmit_enabled) {
+        return true;
+      } else {
+        return false;
+      }
+    turn_on_action:
+     - lambda: "id(climate_livingroom)->set_transmit_enabled(true);"
+    turn_off_action:
+      - lambda: "id(climate_livingroom)->set_transmit_enabled(false);"
+    entity_category: "config"
