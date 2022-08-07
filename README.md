@@ -11,4 +11,7 @@
 
 ## Usage
 
-Edit [``secrets.yaml``](secrets.yaml) accordingly, compile and upload it to your favorite ESP device 😁
+1. Edit [``secrets.yaml``](secrets.yaml) accordingly
+2. Edit the ``board`` model ([see here a list](https://registry.platformio.org/platforms/platformio/espressif8266/boards))
+3. Edit the ``pin`` for the ``remote_transmitter`` and ``remote_receiver`` in [``climate_ir.yaml``](climate_ir.yaml) to match your configuration
+4. Compile and upload it to your favorite ESP device 😁
